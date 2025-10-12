@@ -54,17 +54,13 @@ const config: Configuration = {
       overlay: {
         warnings: false
       }
-    },
-    headers: {
-      'Cross-Origin-Embedder-Policy': 'require-corp',
-      'Cross-Origin-Opener-Policy': 'same-origin'
     }
   },
   module: {
     rules: [
       {
-        test: /analyzer.js$/,
-        type: 'asset/source'
+        test: /\.png$/,
+        type: 'asset/inline'
       },
       {
         test: /\.tsx?$/,

@@ -10,10 +10,6 @@ import {
   Form,
   Row
 } from 'react-bootstrap';
-
-import { DeckEntry, DisplayModes } from '../types';
-import { getPageTitle } from '../utils';
-import MagicCard from '../components/MagicCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faImages,
@@ -21,17 +17,10 @@ import {
   faSpinner
 } from '@fortawesome/free-solid-svg-icons';
 
-function bufferToImageString(buffer: Uint8Array<ArrayBuffer>) {
-  let binary = '';
-  const bytes = new Uint8Array(buffer);
-  const len = bytes.byteLength;
-
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-
-  return `data:image/png;base64,${btoa(binary)}`;
-}
+import MagicCard from '../components/MagicCard';
+import DrawStats from '../components/DrawStats';
+import { CardInfoResponse, DeckEntry, DisplayModes } from '../types';
+import { getPageTitle } from '../utils';
 
 type FormSchema = {
   deck: string;
@@ -41,10 +30,10 @@ export function Component() {
   const [displayMode, setDisplayMode] = useState<DisplayModes>(
     DisplayModes.Images
   );
-  const imageMap = useRef<Map<string, string>>(new Map());
+  const cardInfoMap = useRef<Map<string, CardInfoResponse>>(new Map());
   const [activeKey, setActiveKey] = useState('deck');
   const [loading, setLoading] = useState(false);
-  const [hand, setHand] = useState<DeckEntry[]>([]);
+  const [hands, setHands] = useState<DeckEntry[][]>([]);
   const { errors, values, handleSubmit, handleChange } = useFormik({
     initialValues: {
       deck: ''
@@ -75,28 +64,30 @@ export function Component() {
         }
 
         const name = names.reverse().join(' ');
-        let image = '';
+        let cardInfo: CardInfoResponse = null;
 
-        if (imageMap.current.has(`${name} ${set}`)) {
-          image = imageMap.current.get(`${name} ${set}`);
+        if (cardInfoMap.current.has(`${name} ${set}`)) {
+          cardInfo = cardInfoMap.current.get(`${name} ${set}`);
         } else {
           try {
-            const imageResponse = await fetch(
-              `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(name)}&set=${encodeURIComponent(set.replace(/[()]/g, ''))}&format=image&version=png`
+            const cardInfoResponse = await fetch(
+              `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(name)}&set=${encodeURIComponent(set.replace(/[()]/g, ''))}`
             );
+            cardInfo =
+              (await cardInfoResponse.json()) as unknown as CardInfoResponse;
 
-            image = bufferToImageString(await imageResponse.bytes());
-            imageMap.current.set(`${name} ${set}`, image);
+            cardInfoMap.current.set(`${name} ${set}`, cardInfo);
           } catch {
             // no-op
-            console.error(`Failed to fetch image for ${name}`);
+            console.error(`Failed to fetch card info for ${name}`);
           }
         }
 
         const newCard = {
           name,
           set,
-          image
+          image: cardInfo.image_uris?.png,
+          color: cardInfo.color_identity?.join?.('') ?? ''
         };
 
         for (let i = 0; i < count; i++) {
@@ -107,9 +98,9 @@ export function Component() {
         }
       }
 
-      setHand(() => {
+      setHands((hands) => {
         setLoading(false);
-        return sampleSize(tempDeck, 7);
+        return [...hands, sampleSize(tempDeck, 7)];
       });
     }
   });
@@ -151,6 +142,7 @@ export function Component() {
           </Form.Group>
         </Form>
         <Container>
+          <DrawStats hands={hands} />
           <Row>
             <Col className="text-end" xs={12}>
               <Button
@@ -170,21 +162,17 @@ export function Component() {
           <Row>
             {loading ? (
               <FontAwesomeIcon icon={faSpinner} size="3x" spin />
-            ) : (
-              hand.map((entry) =>
+            ) : hands.length ? (
+              hands[hands.length - 1].map((entry) =>
                 displayMode === DisplayModes.Images ? (
-                  <MagicCard
-                    image={entry.image}
-                    key={entry.id}
-                    name={entry.name}
-                  />
+                  <MagicCard key={entry.id} {...entry} />
                 ) : (
                   <Col key={entry.id} xs={12}>
                     {entry.name} {entry.set.toLocaleUpperCase()}
                   </Col>
                 )
               )
-            )}
+            ) : null}
           </Row>
         </Container>
       </Card>
