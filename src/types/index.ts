@@ -4,3 +4,8 @@ export type DeckEntry = {
   set: string;
   image: string;
 };
+
+export enum DisplayModes {
+  Images,
+  List
+}

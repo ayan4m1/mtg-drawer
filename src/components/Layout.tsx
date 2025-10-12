@@ -22,6 +22,9 @@ export default function Layout() {
       </Navbar>
       <Container className="h-100">
         <Outlet />
+        <div className="my-4 py-2 border-top text-end">
+          Images generously provided by Scryfall.
+        </div>
       </Container>
     </Fragment>
   );
