@@ -1,3 +1,4 @@
+import pluralize from 'pluralize';
 import { FormikErrors, useFormik } from 'formik';
 import { sampleSize, uniqueId } from 'lodash';
 import { Fragment, useRef, useState } from 'react';
@@ -36,7 +37,8 @@ export function Component() {
   const [hands, setHands] = useState<DeckEntry[][]>([]);
   const { errors, values, handleSubmit, handleChange } = useFormik({
     initialValues: {
-      deck: ''
+      deck: '',
+      drawCount: 1
     },
     validate: ({ deck }) => {
       const result: FormikErrors<FormSchema> = {};
@@ -47,7 +49,7 @@ export function Component() {
 
       return result;
     },
-    onSubmit: async ({ deck }) => {
+    onSubmit: async ({ deck, drawCount }) => {
       setLoading(true);
       setActiveKey('');
 
@@ -87,8 +89,13 @@ export function Component() {
           name,
           set,
           image: cardInfo.image_uris?.png,
-          color: cardInfo.color_identity?.join?.('') ?? ''
+          color: cardInfo.color_identity?.join?.('') ?? '',
+          type: cardInfo.type_line
         };
+
+        if (!newCard.type) {
+          console.assert(`TYPE LINE IS UNDEFINED FOR ${newCard.name}`);
+        }
 
         for (let i = 0; i < count; i++) {
           tempDeck.push({
@@ -99,8 +106,15 @@ export function Component() {
       }
 
       setHands((hands) => {
+        const result = [...hands];
+
         setLoading(false);
-        return [...hands, sampleSize(tempDeck, 7)];
+
+        for (let i = 0; i < drawCount; i++) {
+          result.push(sampleSize(tempDeck, 7));
+        }
+
+        return result;
       });
     }
   });
@@ -118,8 +132,8 @@ export function Component() {
             >
               <Accordion.Header>Settings</Accordion.Header>
               <Accordion.Body>
-                <Form.Label>Paste Decklist w/ Set IDs</Form.Label>
                 <Form.Group>
+                  <Form.Label>Paste Decklist w/ Set IDs</Form.Label>
                   <Form.Control
                     as="textarea"
                     isInvalid={Boolean(errors.deck)}
@@ -132,12 +146,27 @@ export function Component() {
                     {errors.deck}
                   </Form.Control.Feedback>
                 </Form.Group>
+                <Form.Group>
+                  <Form.Label>Hands to Draw</Form.Label>
+                  <Form.Control
+                    isInvalid={Boolean(errors.drawCount)}
+                    min={1}
+                    name="drawCount"
+                    onChange={handleChange}
+                    step={1}
+                    type="number"
+                    value={values.drawCount}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.drawCount}
+                  </Form.Control.Feedback>
+                </Form.Group>
               </Accordion.Body>
             </Accordion.Item>
           </Accordion>
           <Form.Group className="my-2">
             <Button type="submit" variant="primary">
-              Draw a Hand
+              Draw {values.drawCount} {pluralize('Hand', values.drawCount)}
             </Button>
           </Form.Group>
         </Form>

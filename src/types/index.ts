@@ -4,6 +4,7 @@ export type DeckEntry = {
   set: string;
   image: string;
   color: string;
+  type: string;
 };
 
 export type CardInfoResponse = {
@@ -23,6 +24,19 @@ export type CardInfoResponse = {
   cmc: number;
   type_line: string;
 };
+
+export type DataPoint = {
+  name: string;
+  value: number;
+};
+
+export enum CardTypes {
+  Land = 'Land',
+  Creature = 'Creature',
+  Spell = 'Spell',
+  Artifact = 'Artifact',
+  Enchantment = 'Enchantment'
+}
 
 export enum ManaColors {
   White = 'W',
