@@ -12,15 +12,11 @@ import {
   Row
 } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faImages,
-  faListDots,
-  faSpinner
-} from '@fortawesome/free-solid-svg-icons';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
-import MagicCard from '../components/MagicCard';
+import MagicHand from '../components/MagicHand';
 import DrawStats from '../components/DrawStats';
-import { CardInfoResponse, DeckEntry, DisplayModes } from '../types';
+import { CardInfoResponse, DeckEntry } from '../types';
 import { getPageTitle } from '../utils';
 
 type FormSchema = {
@@ -28,9 +24,6 @@ type FormSchema = {
 };
 
 export function Component() {
-  const [displayMode, setDisplayMode] = useState<DisplayModes>(
-    DisplayModes.Images
-  );
   const cardInfoMap = useRef<Map<string, CardInfoResponse>>(new Map());
   const [activeKey, setActiveKey] = useState('deck');
   const [loading, setLoading] = useState(false);
@@ -172,37 +165,15 @@ export function Component() {
         </Form>
         <Container>
           <DrawStats hands={hands} />
-          <Row>
-            <Col className="text-end" xs={12}>
-              <Button
-                onClick={() => setDisplayMode(DisplayModes.Images)}
-                variant="outline-secondary"
-              >
-                <FontAwesomeIcon icon={faImages} size="2x" />
-              </Button>
-              <Button
-                onClick={() => setDisplayMode(DisplayModes.List)}
-                variant="outline-secondary"
-              >
-                <FontAwesomeIcon icon={faListDots} size="2x" />
-              </Button>
-            </Col>
-          </Row>
-          <Row>
-            {loading ? (
-              <FontAwesomeIcon icon={faSpinner} size="3x" spin />
-            ) : hands.length ? (
-              hands[hands.length - 1].map((entry) =>
-                displayMode === DisplayModes.Images ? (
-                  <MagicCard key={entry.id} {...entry} />
-                ) : (
-                  <Col key={entry.id} xs={12}>
-                    {entry.name} {entry.set.toLocaleUpperCase()}
-                  </Col>
-                )
-              )
-            ) : null}
-          </Row>
+          {loading ? (
+            <Row>
+              <Col className="text-center" xs={12}>
+                <FontAwesomeIcon icon={faSpinner} size="3x" spin />
+              </Col>
+            </Row>
+          ) : hands.length ? (
+            <MagicHand hand={hands[hands.length - 1]} />
+          ) : null}
         </Container>
       </Card>
     </Fragment>

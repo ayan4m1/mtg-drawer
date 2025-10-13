@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Col, Container, Row } from 'react-bootstrap';
+import { Col, Container, ListGroup, Row } from 'react-bootstrap';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from 'recharts';
 
 import { CardTypes, DataPoint, DeckEntry, ManaColors } from '../types';
@@ -106,7 +106,7 @@ export default function DrawStats({ hands }: IProps) {
   return hands.length ? (
     <Row className="my-2">
       <Col style={{ minHeight: 300 }} xs={12}>
-        <h4>{hands.length} Total Draws</h4>
+        <h4>Statistics</h4>
         <Container fluid>
           <Row className="g-0">
             <Col className="text-center me-1 offset-sm-1" sm={5} xs={12}>
@@ -163,6 +163,13 @@ export default function DrawStats({ hands }: IProps) {
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
+            </Col>
+          </Row>
+          <Row className="my-2">
+            <Col xs={12}>
+              <ListGroup>
+                <ListGroup.Item>Total Draws: {hands.length}</ListGroup.Item>
+              </ListGroup>
             </Col>
           </Row>
         </Container>
