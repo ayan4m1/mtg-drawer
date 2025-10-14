@@ -21,6 +21,7 @@ import { getPageTitle } from '../utils';
 
 type FormSchema = {
   deck: string;
+  drawCount: number;
 };
 
 export function Component() {
@@ -33,11 +34,15 @@ export function Component() {
       deck: '',
       drawCount: 1
     },
-    validate: ({ deck }) => {
+    validate: ({ deck, drawCount }) => {
       const result: FormikErrors<FormSchema> = {};
 
       if (!deck) {
         result.deck = 'Deck cannot be empty!';
+      }
+
+      if (isNaN(drawCount) || drawCount < 1 || drawCount > 10000) {
+        result.drawCount = 'Draw count must be between 1 and 10k';
       }
 
       return result;
@@ -85,10 +90,6 @@ export function Component() {
           color: cardInfo.color_identity?.join?.('') ?? '',
           type: cardInfo.type_line
         };
-
-        if (!newCard.type) {
-          console.assert(`TYPE LINE IS UNDEFINED FOR ${newCard.name}`);
-        }
 
         for (let i = 0; i < count; i++) {
           tempDeck.push({
