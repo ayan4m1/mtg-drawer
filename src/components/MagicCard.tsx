@@ -1,4 +1,5 @@
 import { Col, OverlayTrigger } from 'react-bootstrap';
+import { OverlayInjectedProps } from 'react-bootstrap/Overlay';
 
 import genericCardBack from '../images/card-back.png';
 
@@ -10,13 +11,23 @@ interface IProps {
 export default function MagicCard({ image, name }: IProps) {
   return (
     <OverlayTrigger
-      overlay={(props) =>
+      overlay={(props: OverlayInjectedProps) =>
         image ? (
           <div {...props}>
             <img alt={name} src={image} style={{ height: '500px' }} />
           </div>
         ) : (
-          <span />
+          <div
+            {...props}
+            style={{
+              ...props.style,
+              backgroundColor: '#262323',
+              borderRadius: 8,
+              padding: 20
+            }}
+          >
+            {name}
+          </div>
         )
       }
       placement="auto"
