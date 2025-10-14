@@ -118,7 +118,6 @@ export default function DrawStats({ hands }: IProps) {
                     cy="50%"
                     data={colorPieData}
                     dataKey="value"
-                    fill="#8884d8"
                     isAnimationActive={false}
                     label={renderInteriorLabel}
                     labelLine={false}
@@ -146,7 +145,6 @@ export default function DrawStats({ hands }: IProps) {
                     cy="50%"
                     data={typePieData}
                     dataKey="value"
-                    fill="#8884d8"
                     isAnimationActive={false}
                     label={renderInteriorLabel}
                     labelLine={false}
