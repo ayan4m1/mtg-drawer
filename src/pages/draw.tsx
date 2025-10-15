@@ -86,9 +86,9 @@ export function Component() {
         const newCard = {
           name,
           set,
-          image: cardInfo.image_uris?.png,
-          color: cardInfo.color_identity?.join?.('') ?? '',
-          type: cardInfo.type_line
+          image: cardInfo?.image_uris?.png,
+          color: cardInfo?.color_identity?.join?.('') ?? '',
+          type: cardInfo?.type_line
         };
 
         for (let i = 0; i < count; i++) {
