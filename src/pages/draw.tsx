@@ -30,6 +30,7 @@ export function Component() {
   const [loading, setLoading] = useState(false);
   const [hands, setHands] = useState<DeckEntry[][]>([]);
   const [dragging, setDragging] = useState(false);
+  const [dropError, setDropError] = useState(false);
   const { errors, values, handleSubmit, handleChange, setFieldValue } =
     useFormik({
       initialValues: {
@@ -114,7 +115,11 @@ export function Component() {
         });
       }
     });
-  const handleDragEnter = useCallback(() => setDragging(true), []);
+  const handleDragOver = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    setDragging(true);
+    setDropError(false);
+  }, []);
   const handleDrop = useCallback(
     (e: DragEvent) => {
       e.preventDefault();
@@ -123,24 +128,28 @@ export function Component() {
       const { files } = e.dataTransfer;
 
       if (files.length !== 1) {
+        setDropError(true);
         return;
       }
 
       const [file] = files;
 
-      if (file.type.startsWith('text/')) {
-        const reader = new FileReader();
-
-        reader.onload = (readEvent) => {
-          setFieldValue('deck', readEvent.target.result);
-        };
-
-        reader.readAsText(file, 'utf-8');
+      if (!file.type.startsWith('text/')) {
+        setDropError(true);
+        return;
       }
+
+      const reader = new FileReader();
+
+      reader.onload = (readEvent) =>
+        setFieldValue('deck', readEvent.target.result);
+      reader.onerror = () => setDropError(true);
+
+      reader.readAsText(file, 'utf-8');
     },
     [setFieldValue]
   );
-  const handleDragLeave = useCallback(() => setDragging(false), []);
+  const handleDragExit = useCallback(() => setDragging(false), []);
 
   return (
     <Fragment>
@@ -159,13 +168,18 @@ export function Component() {
                   <Form.Label>Paste or Drop Decklist w/ Set IDs</Form.Label>
                   <Form.Control
                     as="textarea"
-                    className={dragging ? 'border-success border-5' : null}
+                    className={
+                      dropError
+                        ? 'border-danger border-5'
+                        : dragging
+                          ? 'border-success border-5'
+                          : 'border-primary border-5'
+                    }
                     isInvalid={Boolean(errors.deck)}
                     name="deck"
                     onChange={handleChange}
-                    onDragEnter={handleDragEnter}
-                    onDragLeave={handleDragLeave}
-                    onDragOver={(e) => e.preventDefault()}
+                    onDragExit={handleDragExit}
+                    onDragOver={handleDragOver}
                     onDrop={handleDrop}
                     rows={10}
                     value={values.deck}
@@ -199,7 +213,6 @@ export function Component() {
           </Form.Group>
         </Form>
         <Container>
-          <DrawStats hands={hands} />
           {loading ? (
             <Row>
               <Col className="text-center" xs={12}>
@@ -207,7 +220,10 @@ export function Component() {
               </Col>
             </Row>
           ) : hands.length ? (
-            <MagicHand hand={hands[hands.length - 1]} />
+            <Fragment>
+              <DrawStats hands={hands} />
+              <MagicHand hand={hands[hands.length - 1]} />
+            </Fragment>
           ) : null}
         </Container>
       </Card>
