@@ -156,7 +156,7 @@ export function Component() {
               <Accordion.Header>Settings</Accordion.Header>
               <Accordion.Body>
                 <Form.Group>
-                  <Form.Label>Paste Decklist w/ Set IDs</Form.Label>
+                  <Form.Label>Paste or Drop Decklist w/ Set IDs</Form.Label>
                   <Form.Control
                     as="textarea"
                     className={dragging ? 'border-success border-5' : null}
