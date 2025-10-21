@@ -153,9 +153,9 @@ export function Component() {
 
   return (
     <Fragment>
-      <title>{getPageTitle('Home')}</title>
+      <title>{getPageTitle('Draw Hands')}</title>
       <Card body>
-        <Card.Title>Home</Card.Title>
+        <Card.Title>Draw Hands</Card.Title>
         <Form onSubmit={handleSubmit}>
           <Accordion activeKey={activeKey}>
             <Accordion.Item
