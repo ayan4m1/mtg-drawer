@@ -181,6 +181,9 @@ export function Component() {
                     onDragExit={handleDragExit}
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
+                    placeholder="// comments are ignored
+4 Angel's Trumpet (ulg)
+2 Arc Spitter (snc)"
                     rows={10}
                     value={values.deck}
                   />
